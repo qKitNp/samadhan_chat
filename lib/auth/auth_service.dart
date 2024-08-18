@@ -1,27 +1,49 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:samadhan_chat/Auth/supabase_authProvider.dart';
 
-class AuthService {
-  // instance of an auth
-  final SupabaseClient supabase = Supabase.instance.client;
-  // sign in
+import 'auth_providers.dart';
+import 'custom_auth_user.dart';
 
-  Future<void> signInWithEmailPassword(
-      String email, String password) async {
-        try {
-          await supabase.auth.signInWithPassword(email: email, password: password);
-        } on AuthException catch (e) {
-          throw Exception(e.message);
-        }
-  }
+class AuthService implements AuthProvider {
+  final AuthProvider provider;
+  AuthService(this.provider);
+  
+  factory AuthService.supabase() => AuthService(SupabaseAuthProvider() as AuthProvider);
 
-  Future<AuthResponse> registerWithEmailPassword(String email, String password) async {
-    try {
-      final authResponse = await supabase.auth.signUp(password: password, email: email);
-      return authResponse;
-    } on AuthException catch (e) {
-      throw Exception(e.message);
-    }
-  }
+  @override
+  Future<void> initialize() => (provider.initialize());
 
-  // sign out
+  @override
+  Future<CustomAuthUser> createUser({
+    required String email, 
+    required String password,
+    }) 
+    => provider.createUser(email: email, password: password);
+  
+  @override
+  CustomAuthUser? get currentUser => provider.currentUser;
+  
+  @override
+  Future<CustomAuthUser> login({
+    required String email, 
+    required String password,
+    }) => provider.login(email: email, password: password);
+  
+  @override
+  Future<void> logout() => provider.logout();
+  
+  @override
+  Future<void> resendEmailVerification() => provider.resendEmailVerification();
+
+  @override
+  Future<bool> isEmailVerified() => provider.isEmailVerified();
+  
+  @override
+  Future<void> sendPasswordReset({required String toEmail}) => provider.sendPasswordReset(toEmail: toEmail);
+  
+  @override
+  Future<CustomAuthUser> signInWithGoogle() => provider.signInWithGoogle();
+  
+  @override
+  Future<CustomAuthUser> signInWithFacebook() => provider.signInWithFacebook(); 
+  
 }
