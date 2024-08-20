@@ -59,6 +59,7 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
             right: 0,
             child: Column(
               children: [
+                if (_currentPage != _pages.length - 1)
                 PageIndicator(
                   currentPage: _currentPage,
                   pageCount: _pages.length,
@@ -150,24 +151,26 @@ Widget _buildPage(OnboardingPage page, {required BuildContext context}) {
             ),
             const Spacer(),
             if (page.isLast)
-              Padding(
-                padding: const EdgeInsets.all(20),
-                child: ElevatedButton(
-                  onPressed: () {
-                   context.read<AuthBloc>().add(const AuthEventNavigateToSignIn());                               
-                    },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.white,
-                    padding: const EdgeInsets.symmetric(
-                      horizontal: 30,
-                      vertical: 15,
+              Center(
+                child: Padding(
+                  padding: const EdgeInsets.all(20),
+                  child: ElevatedButton(
+                    onPressed: () {
+                     context.read<AuthBloc>().add(const AuthEventNavigateToSignIn());                               
+                      },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 30,
+                        vertical: 15,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(30),
+                      ),
                     ),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30),
-                    ),
+                    child: const Text('Get Started',
+                        style: TextStyle(fontSize: 18)),
                   ),
-                  child: const Text('Get Started',
-                      style: TextStyle(fontSize: 18)),
                 ),
               ),
             const SizedBox(height: 40),

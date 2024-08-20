@@ -1,8 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_state.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
@@ -16,12 +13,6 @@ class EmailVerification extends StatefulWidget {
 
 class _EmailVerificationState extends State<EmailVerification> {
   bool isEmailSent = false;
-
-  @override
-  void initState() {
-    super.initState();
-    context.read<AuthBloc>().add(const AuthEventEmailVerification());
-  }
 
   @override
   Widget build(BuildContext context) {

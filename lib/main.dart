@@ -1,10 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_state.dart';
-// import 'package:samadhan_chat/Auth/supabase_authProvider.dart';
 import 'package:samadhan_chat/Views/Home/home_page.dart';
 import 'package:samadhan_chat/Views/Starter_Screen/email_verification.dart';
 import 'package:samadhan_chat/Views/Starter_Screen/forgot_password_view.dart';
