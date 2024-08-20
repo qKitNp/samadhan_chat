@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
-import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
-import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
-import 'package:samadhan_chat/Auth/Bloc/auth_state.dart';
-import 'package:samadhan_chat/Auth/auth_exceptions.dart';
+import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
+import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
+import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
+import 'package:samadhan_chat/auth/auth_exceptions.dart';
 import 'package:samadhan_chat/utilities/Dialogs/show_message.dart';
 import 'package:samadhan_chat/utilities/Visuals/glassbox.dart';
 

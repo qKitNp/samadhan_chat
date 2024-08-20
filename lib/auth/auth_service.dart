@@ -1,4 +1,5 @@
-import 'package:samadhan_chat/Auth/supabase_authProvider.dart';
+// import 'package:samadhan_chat/Auth/supabase_authProvider.dart';
+import 'package:samadhan_chat/auth/supabase_authProvider.dart';
 
 import 'auth_providers.dart';
 import 'custom_auth_user.dart';

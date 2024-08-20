@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
-import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
+// import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
+// import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
+import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
+import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/utilities/Visuals/page_indicator.dart';
 
 class OnboardingScreenView extends StatefulWidget {
@@ -20,17 +22,17 @@ class _OnboardingScreenViewState extends State<OnboardingScreenView> {
     OnboardingPage(
       quote: "",
       info: "",
-      image: "assets/icons/images/AnimeShrine.jpg",
+      image: "assets/images/AnimeShrine.jpg",
     ),
     OnboardingPage(
       quote: "",
       info: "",
-      image: "assets/icons/images/blackhole (1).png",
+      image: "assets/images/blackhole (1).png",
     ),
     OnboardingPage(
       quote: "Are you ready to redefine your limits?",
       info: "Start your journey to extraordinary success",
-      image: "assets/icons/images/DarkPath.jpeg",
+      image: "assets/images/DarkPath.jpeg",
       isLast: true,
     ),
   ];

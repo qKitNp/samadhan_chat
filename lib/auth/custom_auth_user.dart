@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:samadhan_chat/Auth/supabase_client_singleton.dart';
+// import 'package:samadhan_chat/Auth/supabase_client_singleton.dart';
+import 'package:samadhan_chat/auth/supabase_client_singleton.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 @immutable

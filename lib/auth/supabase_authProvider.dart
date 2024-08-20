@@ -1,6 +1,8 @@
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:samadhan_chat/Auth/auth_exceptions.dart';
-import 'package:samadhan_chat/Auth/supabase_client_singleton.dart';
+import 'package:samadhan_chat/auth/auth_exceptions.dart';
+// import 'package:samadhan_chat/Auth/auth_exceptions.dart';
+// import 'package:samadhan_chat/Auth/supabase_client_singleton.dart';
+import 'package:samadhan_chat/auth/supabase_client_singleton.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'auth_providers.dart';
 import 'custom_auth_user.dart';
