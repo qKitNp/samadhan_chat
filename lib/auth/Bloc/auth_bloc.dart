@@ -1,8 +1,5 @@
 
 import 'package:bloc/bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_state.dart';
-// import 'package:samadhan_chat/Auth/auth_providers.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
 import 'package:samadhan_chat/auth/auth_providers.dart';
@@ -150,7 +147,7 @@ class AuthBloc extends Bloc<AuthEvents, AuthState> {
       } on Exception catch (e) {
         emit( AuthStateRegistering(
         exception: e,
-        isLoading: true,
+        isLoading: false,
       ));
       }
   });

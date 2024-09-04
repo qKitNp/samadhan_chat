@@ -1,12 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_state.dart';
-// import 'package:samadhan_chat/Auth/auth_exceptions.dart';
+import 'package:samadhan_chat/ErrorHandling/error_translator.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
-import 'package:samadhan_chat/auth/auth_exceptions.dart';
 import 'package:samadhan_chat/utilities/Dialogs/show_message.dart';
 import 'package:samadhan_chat/utilities/Visuals/glassbox.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -54,11 +50,17 @@ class _RegisterViewState extends State<RegisterView> with SingleTickerProviderSt
 
   @override
   Widget build(BuildContext context) {
+    String message = '';
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state is AuthStateLoggedOut && state.exception != null) {
+         message = ErrorTranslator.translate(state.exception!);        
+        } else if (state is AuthStateRegistering && state.exception != null) {
+          message = ErrorTranslator.translate(state.exception!);
+        }
+        if (message.isNotEmpty) {
           showMessage(
-            message: _getErrorMessage(state.exception!),
+            message: message,
             context: context,
             icon: Icons.error,
             backgroundColor: Colors.red.withOpacity(0.8),
@@ -303,8 +305,8 @@ class _RegisterViewState extends State<RegisterView> with SingleTickerProviderSt
     return Row(
       children: [
         Expanded(child: Divider(color: Colors.white.withOpacity(0.5), thickness: 1)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        const Padding(
+          padding:  EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Or register with',
             style: TextStyle(
@@ -363,7 +365,7 @@ class _RegisterViewState extends State<RegisterView> with SingleTickerProviderSt
       onPressed: () {
         context.read<AuthBloc>().add(const AuthEventNavigateToSignIn());
       },
-      child: Text(
+      child:const Text(
         'Already have an account? Sign In',
         style: TextStyle(
           fontSize: 16,
@@ -383,19 +385,19 @@ class _RegisterViewState extends State<RegisterView> with SingleTickerProviderSt
     }
   }
 
-  String _getErrorMessage(Exception exception) {
-    if (exception is EmailAlreadyInUseAuthException) {
-      return 'Email is already in use';
-    } else if (exception is IllegalArgumentException) {
-      return 'Invalid argument';
-    } else if (exception is GoogleLoginFailureException) {
-      return 'Google login failed';
-    } else if (exception is CancelledByUserAuthException) {
-      return 'Sign-up was cancelled';
-    } else if (exception is FacebookSignInFailedAuthException) {
-      return 'An error occurred during Facebook sign-up';
-    } else {
-      return 'An error occurred';
-    }
-  }
+  // String _getErrorMessage(Exception exception) {
+  //   if (exception is EmailAlreadyInUseAuthException) {
+  //     return 'Email is already in use';
+  //   } else if (exception is IllegalArgumentException) {
+  //     return 'Invalid argument';
+  //   } else if (exception is GoogleLoginFailureException) {
+  //     return 'Google login failed';
+  //   } else if (exception is CancelledByUserAuthException) {
+  //     return 'Sign-up was cancelled';
+  //   } else if (exception is FacebookLoginFailureException) {
+  //     return 'An error occurred during Facebook sign-up';
+  //   } else {
+  //     return 'An error occurred - ${exception.toString()}';
+  //   }
+  // }
 }

@@ -1,6 +1,5 @@
 import 'package:flutter/foundation.dart' show immutable;
 import 'package:equatable/equatable.dart';
-// import 'package:samadhan_chat/Auth/custom_auth_user.dart';
 import 'package:samadhan_chat/auth/custom_auth_user.dart';
 
 enum AuthView {

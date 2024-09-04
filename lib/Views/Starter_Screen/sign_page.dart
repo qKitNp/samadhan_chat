@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:samadhan_chat/ErrorHandling/error_translator.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
-import 'package:samadhan_chat/auth/auth_exceptions.dart';
 import 'package:samadhan_chat/utilities/Dialogs/show_message.dart';
 import 'package:samadhan_chat/utilities/Visuals/glassbox.dart';
 
@@ -44,7 +44,7 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
       listener: (context, state) {
         if (state is AuthStateLoggedOut) {
           if (state.exception != null) {
-            String message = _getErrorMessage(state.exception!);
+            String message = ErrorTranslator.translate(state.exception!);
             showMessage(
               message: message,
               context: context,
@@ -251,7 +251,7 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
       onPressed: () {
         context.read<AuthBloc>().add(const AuthEventForgotPassword());
       },
-      child: Text(
+      child:const Text(
         'Forgot Password?',
         style: TextStyle(
           fontSize: 16,
@@ -266,8 +266,8 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
     return Row(
       children: [
         Expanded(child: Divider(color: Colors.white.withOpacity(0.5), thickness: 1)),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16),
+        const Padding(
+          padding: EdgeInsets.symmetric(horizontal: 16),
           child: Text(
             'Or sign in with',
             style: TextStyle(
@@ -326,7 +326,7 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
       onPressed: () {
         context.read<AuthBloc>().add(const AuthEventNavigateToRegister());
       },
-      child: Text(
+      child:const Text(
         'New user? Register here!',
         style: TextStyle(
           fontSize: 16,
@@ -344,19 +344,19 @@ class _SignInViewState extends State<SignInView> with SingleTickerProviderStateM
     }
   }
 
-  String _getErrorMessage(Exception exception) {
-    if (exception is InvalidCredentialAuthException) {
-      return 'Invalid credentials';
-    } else if (exception is IllegalArgumentException) {
-      return 'Invalid argument';
-    } else if (exception is GoogleLoginFailureException) {
-      return 'Google login failed';
-    } else if (exception is CancelledByUserAuthException) {
-      return 'Sign-in was cancelled';
-    } else if (exception is FacebookSignInFailedAuthException) {
-      return 'An error occurred during Facebook sign-in';
-    } else {
-      return 'An error occurred';
-    }
-  }
+  // String _getErrorMessage(Exception exception) {
+    // if (exception is InvalidCredentialAuthException) {
+    //   return 'Invalid credentials';
+    // } else if (exception is IllegalArgumentException) {
+    //   return 'Invalid argument';
+    // } else if (exception is GoogleLoginFailureException) {
+    //   return 'Google login failed';
+    // } else if (exception is CancelledByUserAuthException) {
+    //   return 'Sign-in was cancelled';
+    // } else if (exception is FacebookLoginFailureException) {
+    //   return 'An error occurred during Facebook sign-in';
+    // } else {
+    //   return 'An error occurred';
+    // }
+  // }
 }

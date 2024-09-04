@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
+import 'package:logging/logging.dart';
 import 'package:samadhan_chat/Views/Home/home_page.dart';
 import 'package:samadhan_chat/Views/Starter_Screen/email_verification.dart';
 import 'package:samadhan_chat/Views/Starter_Screen/forgot_password_view.dart';
@@ -17,7 +18,7 @@ import 'package:samadhan_chat/utilities/Loading/loading_screen.dart';
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
-   
+   _setupLogging();
   runApp(
     BlocProvider<AuthBloc>(
       create: (context) => AuthBloc(
@@ -26,6 +27,13 @@ Future<void> main() async {
       child: const MainApp(),
     ),
   );
+}
+
+void _setupLogging() {
+  Logger.root.level = Level.ALL; // Set the logging level
+  Logger.root.onRecord.listen((LogRecord rec) {
+    print('${rec.level.name}: ${rec.time}: ${rec.message}');
+  });
 }
 
 class MainApp extends StatelessWidget {

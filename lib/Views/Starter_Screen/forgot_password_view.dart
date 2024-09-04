@@ -1,11 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:samadhan_chat/ErrorHandling/error_translator.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_bloc.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
-// import 'package:samadhan_chat/Auth/Bloc/auth_state.dart';
 import 'package:samadhan_chat/utilities/Dialogs/show_message.dart';
 import 'package:samadhan_chat/utilities/Visuals/glassbox.dart';
 import 'package:flutter_svg/flutter_svg.dart';
@@ -14,7 +12,7 @@ class ForgotPasswordView extends StatefulWidget {
   const ForgotPasswordView({super.key});
 
   @override
-  _ForgotPasswordViewState createState() => _ForgotPasswordViewState();
+  State<ForgotPasswordView> createState() => _ForgotPasswordViewState();
 }
 
 class _ForgotPasswordViewState extends State<ForgotPasswordView> with SingleTickerProviderStateMixin {
@@ -56,8 +54,10 @@ class _ForgotPasswordViewState extends State<ForgotPasswordView> with SingleTick
               backgroundColor: Colors.green.withOpacity(0.8),
             );
           } else if (state.exception != null) {
+            print(state.exception);
+            String message = ErrorTranslator.translate(state.exception!);
             showMessage(
-              message: 'Failed to send reset email. Please try again.',
+              message: 'Failed to send reset email. Please try again.- $message',
               context: context,
               icon: Icons.error,
               backgroundColor: Colors.red.withOpacity(0.8),

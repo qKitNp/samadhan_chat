@@ -18,11 +18,20 @@ class GenericAuthException implements Exception{}
 class UserNotLoggedInAuthException implements Exception{}
 
 // facebook login exception
-class FacebookSignInFailedAuthException implements Exception{}
+class FacebookLoginFailureException implements Exception{}
 
 // google login exception
 class GoogleLoginFailureException implements Exception{}
 class CancelledByUserAuthException implements Exception{}
 
+class LoginTimeoutException implements Exception{}
+
 //Session refresh exception
 class SessionRefreshException implements Exception{}
+
+//Supabase AuthProvider exception
+class SupabaseInitializationException implements Exception{}
+class LogoutException implements Exception{}
+class EmailVerificationCheckException implements Exception{}
+class PasswordResetException implements Exception{}
+class PasswordUpdateException implements Exception{}
