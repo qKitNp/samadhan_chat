@@ -50,7 +50,7 @@ class MessageBubble extends StatelessWidget {
                       : CrossAxisAlignment.end,
                   children: [
                     Text(
-                      message.text,
+                      message.message,
                       style: TextStyle(
                         color: message.isBot ? Colors.black87 : Colors.white,
                         fontSize: 16,
@@ -87,17 +87,14 @@ class MessageBubble extends StatelessWidget {
   }
 
   Widget _buildBotAvatar() {
-    return Container(
+    return const SizedBox(
       width: 32,
       height: 32,
-      decoration: BoxDecoration(
-        color: Colors.grey[300],
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(
-        Icons.android,
-        size: 18,
-        color: Colors.grey,
+      
+      child: Icon(
+        Icons.wb_sunny_rounded,
+        size: 32,
+        color: Colors.orange,
       ),
     );
   }

@@ -13,14 +13,18 @@ import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
 import 'package:samadhan_chat/auth/supabase_authProvider.dart';
 import 'package:samadhan_chat/chat/chat_bloc/chat_bloc.dart';
+import 'package:samadhan_chat/chat/chat_cache_manager.dart';
 import 'package:samadhan_chat/chat/chat_repository.dart';
 import 'package:samadhan_chat/chat/gemini/gemini_service.dart';
 import 'package:samadhan_chat/themes/light_mode.dart';
 import 'package:samadhan_chat/utilities/Loading/loading_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await dotenv.load(fileName: ".env");
+  final prefs = await SharedPreferences.getInstance();
+
    _setupLogging();
   runApp(
     MultiBlocProvider(
@@ -33,7 +37,8 @@ Future<void> main() async {
         BlocProvider<ChatBloc>(
           create: (context) => ChatBloc(
             ChatRepository(), 
-            GeminiService()
+            GeminiService(),
+            ChatCacheService(prefs),
           )
           ),
       ],
@@ -82,7 +87,7 @@ class MainApp extends StatelessWidget {
     } else if (state is AuthStateLoggedIn) {
       print(state.user.email);
       print(state.user.isEmailVerified);
-      return state.user.isEmailVerified ? const HomePage() : const EmailVerification();
+      return state.user.isEmailVerified ? const ChatScreen() : const EmailVerification();
     } else if (state is AuthStateNeedsVerification) {
       return const EmailVerification();
     } else if (state is AuthStateForgotPassword) {

@@ -1,37 +1,59 @@
+import 'package:google_generative_ai/google_generative_ai.dart';
 import 'package:flutter_dotenv/flutter_dotenv.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
 
 class GeminiService {
-  final String _apiKey = dotenv.env['GEMINI_API_KEY']!;
+  late final GenerativeModel _model;
+  late final ChatSession _chat;
+  final List<Content> _history = [];
+  static const int _maxHistoryLength = 10;
 
+  GeminiService() {
+    final apiKey = dotenv.env['GEMINI_API_KEY']!;
+    _model = GenerativeModel(
+      model: 'gemini-pro',
+      apiKey: apiKey,
+      generationConfig: GenerationConfig(
+        temperature: 0.7,
+
+      ),
+    );
+    _chat = _model.startChat(history: _history);
+  }
+  
   Future<String> generateResponse(String message) async {
     try {
-      final response = await http.post(
-        Uri.parse('https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=$_apiKey'),
-        headers: {'Content-Type': 'application/json'},
-        body: jsonEncode({
-          'contents': [
-            {
-              'parts': [
-                {'text': 'Respond in the context of Vedic philosophy: $message'}
-              ]
-            }
-          ],
-          'generationConfig': {
-            'temperature': 0.7,
-            'maxOutputTokens': 300
-          }
-        }),
-      );
+      // Add user message to history
+      final userMessage = Content('user', [TextPart(message)]);
+      _history.add(userMessage);
 
-      if (response.statusCode == 200) {
-        final jsonResponse = json.decode(response.body);
-        return jsonResponse['candidates'][0]['content']['parts'][0]['text'];
+      // Generate response
+      final response = await _chat.sendMessage(userMessage);
+      final responseText = response.text;
+
+      if (responseText == null || responseText.isEmpty) {
+        throw Exception('Empty response from Gemini');
       }
-    } catch (e) {
-      print('Error generating response: $e');
+
+      // Add AI response to history
+      _history.add(Content('model', [TextPart(responseText)]));
+
+      // Maintain history size
+      // if (_history.length > _maxHistoryLength * 2) {
+      //   _history.removeRange(0, 2); // Remove oldest Q&A pair
+      // }
+
+      return responseText;
+    } on Exception catch (e) {
+      print('Gemini error: $e');
+      return 'I apologize, but I encountered an error processing your request.';
     }
-    return 'I apologize, but I could not process your request.';
   }
+
+  void resetConversation() {
+    _history.clear();
+    _chat = _model.startChat(history: _history);
+  }
+
+
+  bool get hasHistory => _history.isNotEmpty;
 }

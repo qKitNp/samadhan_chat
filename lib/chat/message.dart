@@ -1,12 +1,14 @@
+// ignore_for_file: non_constant_identifier_names
+
 import 'package:flutter/foundation.dart';
 
 @immutable
 class Message {
   final String id;
-  final String text;
+  final String message;
   final String userId;
   final bool isBot;
-  final DateTime time;
+  final DateTime created_at;
   final MessageType type;
   final Map<String, dynamic> metadata;
   
@@ -24,10 +26,10 @@ class Message {
 
   const Message({
     required this.id,
-    required this.text,
+    required this.message,
     required this.userId,
     required this.isBot,
-    required this.time,
+    required this.created_at,
     this.type = MessageType.text,
     this.metadata = const {},
     this.confidence,
@@ -42,41 +44,52 @@ class Message {
 
   // Create from database record
   factory Message.fromJson(Map<String, dynamic> json) {
+  try {
     return Message(
-      id: json['id'],
-      text: json['message'],
-      userId: json['user_id'],
+      id: json['id']?.toString() ?? DateTime.now().millisecondsSinceEpoch.toString(),
+      message: json['message']?.toString() ?? '',
+      userId: json['user_id']?.toString() ?? '',
       isBot: json['is_bot'] ?? false,
-      time: DateTime.parse(json['created_at']),
-      type: MessageType.values.firstWhere(
-        (e) => e.toString() == json['type'],
-        orElse: () => MessageType.text,
-      ),
-      metadata: json['metadata'] ?? {},
+      created_at: json['created_at'] != null 
+          ? DateTime.parse(json['created_at']) 
+          : DateTime.now(),
+      type: MessageType.text,
+      metadata: json['metadata'] as Map<String, dynamic>? ?? {},
       confidence: json['confidence']?.toDouble(),
-      references: List<String>.from(json['references'] ?? []),
-      aiContext: json['ai_context'],
-      intent: json['intent'],
-      entities: json['entities'],
-      mediaUrl: json['media_url'],
+      references: (json['references'] as List<dynamic>?)?.map((e) => e.toString()).toList() ?? [],
+      aiContext: json['ai_context'] as Map<String, dynamic>?,
+      intent: json['intent']?.toString(),
+      entities: json['entities'] as Map<String, dynamic>?,
+      mediaUrl: json['media_url']?.toString(),
       mediaType: json['media_type'] != null 
           ? MediaType.values.firstWhere(
               (e) => e.toString() == json['media_type'],
               orElse: () => MediaType.image,
             )
           : null,
-      mediaMetadata: json['media_metadata'],
+      mediaMetadata: json['media_metadata'] as Map<String, dynamic>?,
+    );
+  } catch (e) {
+    print('Error parsing message JSON: $e');
+    // Return a default message on error
+    return Message(
+      id: DateTime.now().millisecondsSinceEpoch.toString(),
+      message: 'Error loading message',
+      userId: '',
+      isBot: false,
+      created_at: DateTime.now(),
     );
   }
+}
 
   // Convert to JSON for database
   Map<String, dynamic> toJson() {
     return {
       'id': id,
-      'text': text,
+      'message': message,
       'user_id': userId,
       'is_bot': isBot,
-      'timestamp': time.toIso8601String(),
+      'created_at': created_at.toIso8601String(),
       'type': type.toString(),
       'metadata': metadata,
       'confidence': confidence,
@@ -90,7 +103,6 @@ class Message {
     };
   }
 
-  // Create copy with modifications
   Message copyWith({
     String? text,
     Map<String, dynamic>? metadata,
@@ -102,10 +114,10 @@ class Message {
   }) {
     return Message(
       id: id,
-      text: text ?? this.text,
+      message: text ?? message,
       userId: userId,
       isBot: isBot,
-      time: time,
+      created_at: created_at,
       type: type,
       metadata: metadata ?? this.metadata,
       confidence: confidence ?? this.confidence,
@@ -136,10 +148,10 @@ enum MediaType { image, video, audio, document }
 // Extension for time-related utilities
 extension MessageTime on Message {
   bool get isRecent => 
-      DateTime.now().difference(time) < const Duration(minutes: 5);
+      DateTime.now().difference(created_at) < const Duration(minutes: 5);
 
  String get messageTime {
-    int hour = time.hour;
+    int hour = created_at.hour;
     final period = hour >= 12 ? 'PM' : 'AM';
     
     // Convert to 12-hour format
@@ -147,7 +159,7 @@ extension MessageTime on Message {
     if (hour == 0) hour = 12;
     
     // Format minutes with leading zero if needed
-    final minutes = time.minute.toString().padLeft(2, '0');
+    final minutes = created_at.minute.toString().padLeft(2, '0');
     
     return '$hour:$minutes $period';
   }
@@ -155,15 +167,15 @@ extension MessageTime on Message {
     final now = DateTime.now();
     final today = DateTime(now.year, now.month, now.day);
     final yesterday = today.subtract(const Duration(days: 1));
-    final messageDate = DateTime(time.year, time.month, time.day);
+    final messageDate = DateTime(created_at.year, created_at.month, created_at.day);
     if (messageDate == today) {
       return messageTime;
     } else if (messageDate == yesterday) {
       return 'Yesterday, $messageTime';
-    } else if (now.difference(time).inDays < 7) {
-      return '${_getWeekday(time.weekday)}, $messageTime';
+    } else if (now.difference(created_at).inDays < 7) {
+      return '${_getWeekday(created_at.weekday)}, $messageTime';
     } else {
-      return '${time.day}/${time.month}/${time.year}, $messageTime';
+      return '${created_at.day}/${created_at.month}/${created_at.year}, $messageTime';
     }
   }
   String _getWeekday(int day) {
@@ -179,7 +191,7 @@ extension MessageTime on Message {
     }
   }
   String get timeAgo {
-    final difference = DateTime.now().difference(time);
+    final difference = DateTime.now().difference(created_at);
     if (difference.inMinutes < 1) return 'Just now';
     if (difference.inHours < 1) return '${difference.inMinutes}m ago';
     if (difference.inDays < 1) return '${difference.inHours}h ago';

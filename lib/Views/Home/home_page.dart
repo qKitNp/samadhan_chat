@@ -8,17 +8,18 @@ import 'package:samadhan_chat/chat/chat_bloc/chat_bloc.dart';
 import 'package:samadhan_chat/chat/chat_bloc/chat_event.dart';
 import 'package:samadhan_chat/chat/chat_bloc/chat_state.dart';
 import 'package:samadhan_chat/chat/message.dart';
-class HomePage extends StatefulWidget {
-  const HomePage({super.key});
+class ChatScreen extends StatefulWidget {
+  const ChatScreen({super.key});
 
   @override
-  State<HomePage> createState() => _HomePageState();
+  State<ChatScreen> createState() => _ChatScreenState();
 }
 
-class _HomePageState extends State<HomePage> {
+class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late CustomAuthUser user;
+
 
   @override
   void initState() {
@@ -40,11 +41,15 @@ class _HomePageState extends State<HomePage> {
     }
   }
   void _scrollToBottom() {
-    _scrollController.animateTo(
-      _scrollController.position.maxScrollExtent,
-      duration: const Duration(milliseconds: 300),
-      curve: Curves.easeOut,
-    );
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (_scrollController.hasClients) {
+        _scrollController.animateTo(
+          _scrollController.position.maxScrollExtent,
+          duration: const Duration(milliseconds: 300),
+          curve: Curves.easeOut,
+        );
+      }
+    });
   }
 
   @override
@@ -55,36 +60,42 @@ class _HomePageState extends State<HomePage> {
       ),
       body: 
        BlocConsumer<ChatBloc, ChatState>(
-            listener: (context, state) {
-            if (state is MessageSent) {
-              _messageController.clear();
-               WidgetsBinding.instance.addPostFrameCallback((_) {
-              _scrollToBottom();
-            });
-            }
+          listener: (context, state) {
+          if (state is MessageSent){
+            _scrollToBottom();
+          }
+          if (state is ChatLoaded ) {
+            _scrollToBottom();
+          }
           },
-            buildWhen: (previous, current) {
+          buildWhen: (previous, current) {
             return current is! MessageSent;
-            },
-            builder: (context, chatState) {
+          },
+          builder: (context, chatState) {
                 if (chatState is ChatLoaded) {
                   return Column(
                     children: [
                       Expanded(
                         child:StreamBuilder<List<Message>>(
-                          stream: chatState.messages,
+                          stream: chatState.messageStream,
                           builder: (context, snapshot) {
-                             if (!snapshot.hasData) {
-                              return const Center(child: CircularProgressIndicator());
+                            if (snapshot.hasError) {
+                              return Center(child: Text('Error: ${snapshot.error}'));
                             }
-                            final messages = snapshot.data!;
-                                return ListView.builder(
-                                  controller: _scrollController,
-                                  itemCount: messages.length,
-                                  itemBuilder: (context, index) {
-                                    final message = messages[index];
-                                    return MessageBubble(message: message);
-                                  },
+                            
+                            final messages = snapshot.data ?? chatState.currentMessages;
+                            if (messages.isEmpty) {
+                              return const Center(child: Text('No messages yet'));
+                            }   
+                            return ListView.builder(
+                              controller: _scrollController,
+                              itemCount: messages.length,
+                              itemBuilder: (context, index) {
+                                final message = messages[index];
+                                return MessageBubble(
+                                  message: message,
+                                  );
+                              },
                       );
                     },
                   ),
@@ -94,7 +105,7 @@ class _HomePageState extends State<HomePage> {
             );
           }
           if (chatState is ChatLoading) {
-            return const Center(child: CircularProgressIndicator());
+            return const Center(child: Text("sjj"));
           }
           return const SizedBox.shrink();
         },
