@@ -4,7 +4,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 // import 'package:samadhan_chat/Auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
-import 'package:samadhan_chat/utilities/Visuals/page_indicator.dart';
+import 'package:samadhan_chat/utilities/widgets/page_indicator.dart';
 
 class OnboardingScreenView extends StatefulWidget {
   const OnboardingScreenView({super.key});

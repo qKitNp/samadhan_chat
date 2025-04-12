@@ -4,7 +4,7 @@ import 'package:samadhan_chat/ErrorHandling/error_translator.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
 import 'package:samadhan_chat/utilities/Dialogs/show_message.dart';
-import 'package:samadhan_chat/utilities/Visuals/glassbox.dart';
+import 'package:samadhan_chat/utilities/widgets/glassbox.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 
 import '../../auth/Bloc/auth_event.dart';

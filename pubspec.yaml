@@ -18,8 +18,8 @@ dependencies:
   flutter_animate: ^4.5.0
   logging: ^1.2.0
   google_generative_ai: ^0.4.6
-  http: ^1.2.2
   shared_preferences: ^2.3.3
+  connectivity_plus: ^6.1.0
 
 dev_dependencies:
   flutter_test:

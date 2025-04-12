@@ -7,12 +7,17 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class CustomAuthUser {
   final String id;
   final String email;
+  final String? avatarUrl;
+  final String? providerType;
+  final Map<String, dynamic> metadata;
 
   const CustomAuthUser({
     required this.id,
     required this.email,
+    this.avatarUrl,
+    this.providerType,
+    this.metadata = const {},
   });
-
   bool get isEmailVerified {
     final currentUser = SupabaseClientManager().client.auth.currentUser;
     return currentUser?.emailConfirmedAt != null;
@@ -40,8 +45,13 @@ class CustomAuthUser {
     }
   }
 
-  factory CustomAuthUser.fromSupabase(User user) => CustomAuthUser(
-    id: user.id,
-    email: user.email ?? '',
-  );
+  factory CustomAuthUser.fromSupabase(User user) {
+    return CustomAuthUser(
+      id: user.id,
+      email: user.email ?? '',
+      avatarUrl: user.userMetadata?['avatar_url'],
+      providerType: user.appMetadata['provider'],
+      metadata: user.userMetadata ?? {},
+    );
+  }
 }

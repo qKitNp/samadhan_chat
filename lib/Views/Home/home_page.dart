@@ -2,12 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:samadhan_chat/Views/Home/message_bubble.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_bloc.dart';
+import 'package:samadhan_chat/auth/Bloc/auth_event.dart';
 import 'package:samadhan_chat/auth/Bloc/auth_state.dart';
 import 'package:samadhan_chat/auth/custom_auth_user.dart';
 import 'package:samadhan_chat/chat/chat_bloc/chat_bloc.dart';
 import 'package:samadhan_chat/chat/chat_bloc/chat_event.dart';
 import 'package:samadhan_chat/chat/chat_bloc/chat_state.dart';
 import 'package:samadhan_chat/chat/message.dart';
+import 'package:samadhan_chat/utilities/Dialogs/generic_dialog.dart';
+import 'package:samadhan_chat/utilities/widgets/user_avatar.dart';
+
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
 
@@ -19,6 +23,7 @@ class _ChatScreenState extends State<ChatScreen> {
   final TextEditingController _messageController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
   late CustomAuthUser user;
+   UserAvatar? userAvatar;
 
 
   @override
@@ -27,6 +32,7 @@ class _ChatScreenState extends State<ChatScreen> {
     // Initialize user in initState
     WidgetsBinding.instance.addPostFrameCallback((_) {
       _initializeUserData();
+      _initilaizeUserAvatar();
     });
   }
 
@@ -37,8 +43,21 @@ class _ChatScreenState extends State<ChatScreen> {
       setState(() {
         user = authState.user;
       });
-      context.read<ChatBloc>().add(LoadMessagesEvent(user.id));
+      context.read<ChatBloc>().add(
+        LoadMessagesEvent(
+          userId: user.id,
+          userName: user.email.split('@')[0],
+          )
+        );
     }
+  }
+  void _initilaizeUserAvatar(){
+    setState(() {
+      userAvatar = UserAvatar(
+        user: user,
+        size: 32,
+      );
+    });
   }
   void _scrollToBottom() {
     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -57,6 +76,19 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.logout),
+            onPressed: () async {
+              final shouldLogout = await showLogoutOptions(context);
+                if (shouldLogout) {
+                  context.read<AuthBloc>().add(
+                        const AuthEventLogOut(),
+                  );
+                }
+            },
+          ),
+        ],
       ),
       body: 
        BlocConsumer<ChatBloc, ChatState>(
@@ -79,11 +111,11 @@ class _ChatScreenState extends State<ChatScreen> {
                         child:StreamBuilder<List<Message>>(
                           stream: chatState.messageStream,
                           builder: (context, snapshot) {
-                            if (snapshot.hasError) {
-                              return Center(child: Text('Error: ${snapshot.error}'));
-                            }
+                            // if (snapshot.hasError) {
+                            //   return Center(child: Text('Error: ${snapshot.error}'));
+                            // }
                             
-                            final messages = snapshot.data ?? chatState.currentMessages;
+                            final messages = chatState.currentMessages;
                             if (messages.isEmpty) {
                               return const Center(child: Text('No messages yet'));
                             }   
@@ -94,6 +126,7 @@ class _ChatScreenState extends State<ChatScreen> {
                                 final message = messages[index];
                                 return MessageBubble(
                                   message: message,
+                                  userAvatar: userAvatar!,
                                   );
                               },
                       );
@@ -105,9 +138,15 @@ class _ChatScreenState extends State<ChatScreen> {
             );
           }
           if (chatState is ChatLoading) {
-            return const Center(child: Text("sjj"));
+            return const Center(child: CircularProgressIndicator());
           }
-          return const SizedBox.shrink();
+          if (chatState is ChatError) {
+            return const Center(child: Text('An error occurred'));
+          }
+          if (chatState is ChatInitial) {
+            return const Center(child: Text('Loading...'));
+          }
+          return const Center(child: Text("An error occurred"));
         },
       )
     );
@@ -151,4 +190,16 @@ class _ChatScreenState extends State<ChatScreen> {
     _scrollController.dispose();
     super.dispose();
   }
+  
+  Future<bool> showLogoutOptions(BuildContext context) {
+  return showGenericDialog<bool>(
+    context: context,
+    title: 'Logout',
+    content: 'Are you sure you want to logout?',
+    options: () => {
+      'Logout': true,
+      'Cancel': false,
+    },
+  ).then((value) => value ?? false);
+}
 }

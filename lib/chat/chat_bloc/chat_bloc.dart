@@ -16,6 +16,7 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
   Timer? _syncTimer;
   Stream<List<Message>>? _messageStream;
   List<Message> _currentMessages = [];
+  
 
  ChatBloc(this._repository, this._geminiService, this._cacheService) 
   : super(ChatInitial()) {
@@ -42,7 +43,19 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
       }
     }
   }
-
+  Future<void> _initializeAI(String userId, String userName) async {
+    try {
+      await _geminiService.initializeChat(
+        userName: userName,
+        additionalInfo: {
+          'userId': userId,
+          'timezone': DateTime.now().timeZoneName,
+        },
+      );
+    } catch (e) {
+      print('Error initializing AI: $e');
+    }
+  }
   Future<void> _onSendMessage(SendMessageEvent event, Emitter<ChatState> emit) async {
     try {
       // 1. Add user message with optimistic update
@@ -53,16 +66,16 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         isBot: false,
         created_at: DateTime.now(),
       );
+      // Send to supabase 
+      await _repository.sendMessage(event.userId, event.message, false);
+
       _currentMessages.add(userMessage);
       
       emit(ChatLoaded(
         messageStream: _messageStream!,
         currentMessages: _currentMessages,
       ));
-
-      // 2. Send to supabase 
-      await _repository.sendMessage(event.userId, event.message, false);
-
+      
       // Get AI response
       final aiResponse = await _geminiService.generateResponse(event.message);
       
@@ -74,11 +87,10 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         isBot: true,
         created_at: DateTime.now(),
       );
-      _currentMessages.add(aiMessage);
-            
       // Update cache and repository
-      await _cacheService.cacheMessages(_currentUserId!, _currentMessages);
       await _repository.sendMessage(event.userId, aiResponse, true);
+      _currentMessages.add(aiMessage);
+      await _cacheService.cacheMessages(_currentUserId!, _currentMessages);
 
       emit(ChatLoaded(
         messageStream: _messageStream!,
@@ -98,24 +110,14 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
 
   Future<void> _onLoadMessages(LoadMessagesEvent event, Emitter<ChatState> emit) async {
     try {
+      emit(ChatLoading());
+
       _currentUserId = event.userId;
-      
+
       // Get cached messages
       _currentMessages = _cacheService.getCachedMessages(event.userId);
-      
       // Setup message stream
       _messageStream = _repository.getMessages(event.userId);
-
-      // Emit initial state with cached messages if available
-      if (_currentMessages.isNotEmpty) {
-        emit(ChatLoaded(
-          messageStream: _messageStream!,
-          currentMessages: _currentMessages,
-        ));
-      } else {
-        emit(ChatLoading());
-      }
-
       // Setup stream subscription for real-time updates
       await _messageSubscription?.cancel();
       _messageSubscription = _messageStream!.listen(
@@ -141,6 +143,33 @@ class ChatBloc extends Bloc<ChatEvent, ChatState> {
         },
       );
 
+      // Initialize AI with user info
+      await _initializeAI(event.userId, event.userName);
+      
+      // Send welcome message if this is user's first time
+      if (_currentMessages.isEmpty) {
+        final greeting = await _geminiService.generateInitialGreeting(event.userName);
+        
+        await _repository.sendMessage(event.userId, greeting, true);
+
+        final welcomeMessage = Message(
+          id: DateTime.now().millisecondsSinceEpoch.toString(),
+          message: greeting,
+          userId: event.userId,
+          isBot: true,
+          created_at: DateTime.now(),
+        );
+        // Add to cache and repository
+        _currentMessages.add(welcomeMessage);
+        await _cacheService.cacheMessages(_currentUserId!, _currentMessages);
+        }
+
+      if (!emit.isDone) {
+        emit(ChatLoaded(
+          messageStream: _messageStream!,
+          currentMessages: _currentMessages,
+        ));
+      }
     } catch (e) {
       print('Error loading messages: $e');
       if (!emit.isDone) {

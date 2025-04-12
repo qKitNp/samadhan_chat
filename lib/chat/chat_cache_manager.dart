@@ -5,20 +5,35 @@ import 'package:shared_preferences/shared_preferences.dart';
 class ChatCacheService {
   static const String _cacheKeyPrefix = 'chat_messages_';
   static const String _lastSyncKey = 'last_sync_';
+  static const String _cacheVersionKey = 'cache_version';
+  static const int _maxCacheSize = 1000; // messages
   static const Duration _cacheValidityDuration = Duration(hours: 12);
   
   final SharedPreferences _prefs;
   
-  ChatCacheService(this._prefs);
+  ChatCacheService(this._prefs) {
+    _initializeCache();
+  }
+
+  Future<void> _initializeCache() async {
+    final version = _prefs.getInt(_cacheVersionKey);
+    if (version == null) {
+      await _prefs.setInt(_cacheVersionKey, 1);
+      await _prefs.setBool('isInitialized', true);
+    }
+  }
 
   Future<void> cacheMessages(String userId, List<Message> messages) async {
     try {
+      if (messages.length > _maxCacheSize) {
+        messages = messages.sublist(messages.length - _maxCacheSize);
+      }
+      
       final key = _getCacheKey(userId);
-      final data = messages
-          .map((m) => m.toJson())
-          .toList();
+      final data = messages.map((m) => m.toJson()).toList();
       await _prefs.setString(key, jsonEncode(data));
       await _updateLastSync(userId);
+      await _prefs.setBool('hasCache', true);
     } catch (e) {
       print('Cache write error: $e');
       _handleCacheError(userId);

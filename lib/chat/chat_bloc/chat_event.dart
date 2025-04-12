@@ -23,10 +23,15 @@ class SendMessageEvent extends ChatEvent {
 
 class LoadMessagesEvent extends ChatEvent {
   final String userId;
-  const LoadMessagesEvent(this.userId);
+  final String userName;
+  
+  const LoadMessagesEvent({
+    required this.userId,
+    required this.userName,
+  });
   
   @override
-  List<Object?> get props => [userId];
+  List<Object?> get props => [userId, userName];
 }
 
 class DeleteMessageEvent extends ChatEvent {

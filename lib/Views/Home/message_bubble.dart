@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:samadhan_chat/chat/message.dart';
+import 'package:samadhan_chat/utilities/widgets/user_avatar.dart';
 
 class MessageBubble extends StatelessWidget {
   final Message message;
-
+  final UserAvatar userAvatar;
   const MessageBubble({
     super.key,
-    required this.message,
+    required this.message, required this.userAvatar,
   });
 
   @override
@@ -80,7 +81,7 @@ class MessageBubble extends StatelessWidget {
             ),
           ),
           const SizedBox(width: 8),
-          if (!message.isBot) _buildUserAvatar(),
+          if (!message.isBot) userAvatar,
         ],
       ),
     );
@@ -99,20 +100,7 @@ class MessageBubble extends StatelessWidget {
     );
   }
 
-  Widget _buildUserAvatar() {
-    return Container(
-      width: 32,
-      height: 32,
-      decoration: BoxDecoration(
-        color: Colors.blue[100],
-        shape: BoxShape.circle,
-      ),
-      child: const Icon(
-        Icons.person,
-        size: 18,
-        color: Colors.blue,
-      ),
-    );
+  
   }
 
   // Widget _buildMessageStatus(MessageStatus status) {
@@ -148,4 +136,3 @@ class MessageBubble extends StatelessWidget {
   //     color: color,
   //   );
   // }
-}
